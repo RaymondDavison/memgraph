@@ -1,4 +1,4 @@
-// Copyright 2021 Memgraph Ltd.
+// Copyright 2022 Memgraph Ltd.
 //
 // Use of this software is governed by the Business Source License
 // included in the file licenses/BSL.txt; by using this file, you agree to be bound by the terms of the Business Source
@@ -17,8 +17,10 @@
 #include <variant>
 
 #include "query/exceptions.hpp"
+#include "query/frontend/ast/ast.hpp"
 #include "query/frontend/ast/ast_visitor.hpp"
 #include "query/plan/preprocess.hpp"
+#include "utils/typeinfo.hpp"
 
 namespace query::plan {
 
@@ -546,6 +548,13 @@ std::vector<SingleQueryPart> CollectSingleQueryParts(SymbolTable &symbol_table, 
       if (auto *merge = utils::Downcast<query::Merge>(clause)) {
         query_part->merge_matching.emplace_back(Matching{});
         AddMatching({merge->pattern_}, nullptr, symbol_table, storage, query_part->merge_matching.back());
+      } else if (auto *foreach = utils::Downcast<query::Foreach>(clause)) {
+        for (auto *clause : foreach->clauses_) {
+          if (auto *merge = utils::Downcast<query::Merge>(clause)) {
+            query_part->merge_matching.emplace_back(Matching{});
+            AddMatching({merge->pattern_}, nullptr, symbol_table, storage, query_part->merge_matching.back());
+          }
+        }
       } else if (utils::IsSubtype(*clause, With::kType) || utils::IsSubtype(*clause, query::Unwind::kType) ||
                  utils::IsSubtype(*clause, query::CallProcedure::kType) ||
                  utils::IsSubtype(*clause, query::LoadCsv::kType)) {
