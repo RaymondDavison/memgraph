@@ -1,4 +1,4 @@
-// Copyright 2021 Memgraph Ltd.
+// Copyright 2022 Memgraph Ltd.
 //
 // Use of this software is governed by the Business Source License
 // included in the file licenses/BSL.txt; by using this file, you agree to be bound by the terms of the Business Source
@@ -90,6 +90,7 @@ class PlanChecker : public virtual HierarchicalLogicalOperatorVisitor {
   }
   PRE_VISIT(Unwind);
   PRE_VISIT(Distinct);
+  PRE_VISIT(Foreach);
 
   bool Visit(Once &) override {
     // Ignore checking Once, it is implicitly at the end.
@@ -149,6 +150,7 @@ using ExpectLimit = OpChecker<Limit>;
 using ExpectOrderBy = OpChecker<OrderBy>;
 using ExpectUnwind = OpChecker<Unwind>;
 using ExpectDistinct = OpChecker<Distinct>;
+using ExpectForeach = OpChecker<Foreach>;
 
 class ExpectExpandVariable : public OpChecker<ExpandVariable> {
  public:

@@ -1,4 +1,4 @@
-// Copyright 2021 Memgraph Ltd.
+// Copyright 2022 Memgraph Ltd.
 //
 // Use of this software is governed by the Business Source License
 // included in the file licenses/BSL.txt; by using this file, you agree to be bound by the terms of the Business Source
@@ -451,6 +451,11 @@ auto GetMerge(AstStorage &storage, Pattern *pattern, OnMatch on_match, OnCreate 
   return merge;
 }
 
+/// Create the FOREACH clause with given named expression.
+auto GetForeach(AstStorage &storage, NamedExpression *named_expr, const std::vector<query::Clause *> &clauses) {
+  return storage.Create<query::Foreach>(named_expr, clauses);
+}
+
 }  // namespace test_common
 
 }  // namespace query
@@ -517,6 +522,7 @@ auto GetMerge(AstStorage &storage, Pattern *pattern, OnMatch on_match, OnCreate 
 #define SINGLE_QUERY(...) query::test_common::GetSingleQuery(storage.Create<SingleQuery>(), __VA_ARGS__)
 #define UNION(...) query::test_common::GetCypherUnion(storage.Create<CypherUnion>(true), __VA_ARGS__)
 #define UNION_ALL(...) query::test_common::GetCypherUnion(storage.Create<CypherUnion>(false), __VA_ARGS__)
+#define FOREACH(...) query::test_common::GetForeach(storage, __VA_ARGS__)
 // Various operators
 #define NOT(expr) storage.Create<query::NotOperator>((expr))
 #define UPLUS(expr) storage.Create<query::UnaryPlusOperator>((expr))
