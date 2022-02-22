@@ -1,4 +1,4 @@
-// Copyright 2021 Memgraph Ltd.
+// Copyright 2022 Memgraph Ltd.
 //
 // Use of this software is governed by the Business Source License
 // included in the file licenses/BSL.txt; by using this file, you agree to be bound by the terms of the Business Source
@@ -245,4 +245,10 @@ TEST_F(ReadWriteTypeCheckTest, ConstructNamedPath) {
       last_op, GetSymbol("path"), std::vector<Symbol>{node1_sym, edge1_sym, node2_sym, edge2_sym, node3_sym});
 
   CheckPlanType(last_op.get(), RWType::R);
+}
+
+TEST_F(ReadWriteTypeCheckTest, Foreach) {
+  Symbol x = GetSymbol("x");
+  std::shared_ptr<LogicalOperator> foreach = std::make_shared<plan::Foreach>(nullptr, nullptr, x, false);
+  CheckPlanType(foreach.get(), RWType::RW);
 }
