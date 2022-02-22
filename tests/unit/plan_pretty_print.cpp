@@ -1,4 +1,4 @@
-// Copyright 2021 Memgraph Ltd.
+// Copyright 2022 Memgraph Ltd.
 //
 // Use of this software is governed by the Business Source License
 // included in the file licenses/BSL.txt; by using this file, you agree to be bound by the terms of the Business Source
@@ -908,5 +908,19 @@ TEST_F(PrintToJsonTest, CallProcedure) {
             "procedure_name" : "mg.reload",
             "result_fields" : ["name", "signature"],
             "result_symbols" : ["name_alias", "signature_alias"]
+          })sep");
+}
+
+TEST_F(PrintToJsonTest, Foreach) {
+  Symbol x = GetSymbol("x");
+  std::shared_ptr<LogicalOperator> foreach = std::make_shared<plan::Foreach>(nullptr, LIST(LITERAL(1)), x, false);
+
+  Check(foreach.get(), R"sep(
+          {
+            "name" : "Foreach",
+            "output_symbol" : "x",
+            "is_nested" : false,
+            "expression" : "(ListLiteral [1])",
+            "input" : { "name" : "Once" }
           })sep");
 }
