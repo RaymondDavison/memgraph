@@ -1,4 +1,4 @@
-// Copyright 2021 Memgraph Ltd.
+// Copyright 2022 Memgraph Ltd.
 //
 // Use of this software is governed by the Business Source License
 // included in the file licenses/BSL.txt; by using this file, you agree to be bound by the terms of the Business Source
@@ -241,6 +241,7 @@ bool PlanPrinter::PreVisit(query::plan::Cartesian &op) {
   return false;
 }
 
+PRE_VISIT(Foreach);
 #undef PRE_VISIT
 
 bool PlanPrinter::DefaultPreVisit() {
@@ -879,6 +880,19 @@ bool PlanToJsonVisitor::PreVisit(Cartesian &op) {
 
   op.right_op_->Accept(*this);
   self["right_op"] = PopOutput();
+
+  output_ = std::move(self);
+  return false;
+}
+bool PlanToJsonVisitor::PreVisit(Foreach &op) {
+  json self;
+  self["name"] = "Foreach";
+  self["output_symbol"] = ToJson(op.output_symbol_);
+  self["expression"] = ToJson(op.expression_);
+  self["is_nested"] = op.is_nested_;
+
+  op.input_->Accept(*this);
+  self["input"] = PopOutput();
 
   output_ = std::move(self);
   return false;
